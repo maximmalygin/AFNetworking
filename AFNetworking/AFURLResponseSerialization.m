@@ -477,6 +477,10 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
     if (error) {
         *error = AFErrorWithUnderlyingError(serializationError, *error);
     }
+    
+    if (!responseObject) {
+        NSLog(@"Wrong responce: %@, error: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], *error);
+    }
 
     return responseObject;
 }
