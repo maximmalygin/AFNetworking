@@ -479,7 +479,7 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
     }
     
     if (!responseObject) {
-        NSLog(@"Wrong responce: %@, error: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], *error);
+        NSLog(@"Wrong responce: %@, error: %@, URL: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], *error, response.URL);
     }
 
     return responseObject;
