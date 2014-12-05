@@ -142,8 +142,16 @@
         }
         
         __weak __typeof(self)weakSelf = self;
-        self.af_imageRequestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:urlRequest];
-        self.af_imageRequestOperation.responseSerializer = self.imageResponseSerializer;
+        
+        /*
+         Don't send the same request again, just update completion handler
+         */
+        if (![self.af_imageRequestOperation.request isEqual:urlRequest])
+        {
+            self.af_imageRequestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:urlRequest];
+            self.af_imageRequestOperation.responseSerializer = self.imageResponseSerializer;
+        }
+        
         [self.af_imageRequestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if ([[urlRequest URL] isEqual:[strongSelf.af_imageRequestOperation.request URL]]) {
