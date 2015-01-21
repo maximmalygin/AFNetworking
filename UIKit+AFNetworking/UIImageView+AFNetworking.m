@@ -126,7 +126,12 @@
                        success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image))success
                        failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
 {
-//    [self cancelImageRequestOperation];
+    BOOL requestIsForTheSameURL = [self.af_imageRequestOperation.request isEqual:urlRequest];
+    
+    if (!requestIsForTheSameURL)
+    {
+        [self cancelImageRequestOperation];
+    }
 
     UIImage *cachedImage = [[[self class] sharedImageCache] cachedImageForRequest:urlRequest];
     if (cachedImage) {
@@ -147,7 +152,7 @@
         /*
          Don't send the same request again, just update completion handler
          */
-        if (![self.af_imageRequestOperation.request isEqual:urlRequest])
+        if (!requestIsForTheSameURL)
         {
             self.af_imageRequestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:urlRequest];
             self.af_imageRequestOperation.responseSerializer = self.imageResponseSerializer;
@@ -181,7 +186,10 @@
             }
         }];
 
-        [[[self class] af_sharedImageRequestOperationQueue] addOperation:self.af_imageRequestOperation];
+        if (!requestIsForTheSameURL)
+        {
+            [[[self class] af_sharedImageRequestOperationQueue] addOperation:self.af_imageRequestOperation];
+        }
     }
 }
 
