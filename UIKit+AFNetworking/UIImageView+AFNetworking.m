@@ -224,7 +224,8 @@ static inline NSString * AFImageCacheKeyFromURLRequest(NSURLRequest *request) {
         forRequest:(NSURLRequest *)request
 {
     if (image && request) {
-        [self setObject:image forKey:AFImageCacheKeyFromURLRequest(request)];
+        NSUInteger imageSize  = CGImageGetHeight(image.CGImage) * CGImageGetBytesPerRow(image.CGImage);
+        [self setObject:image forKey:AFImageCacheKeyFromURLRequest(request) cost:imageSize];
     }
 }
 
