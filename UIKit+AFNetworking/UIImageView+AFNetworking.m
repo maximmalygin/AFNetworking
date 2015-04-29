@@ -124,9 +124,23 @@
                        success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image))success
                        failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
 {
-    [self cancelImageRequestOperation];
+    [self setImageWithURLRequest:urlRequest placeholderImage:placeholderImage ignoringAFImageCache:NO success:success failure:failure];
+}
 
-    UIImage *cachedImage = [[[self class] sharedImageCache] cachedImageForRequest:urlRequest];
+- (void)setImageWithURLRequest:(NSURLRequest *)urlRequest
+              placeholderImage:(UIImage *)placeholderImage
+          ignoringAFImageCache:(BOOL)ignoreAFImageCache
+                       success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image))success
+                       failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
+{
+    BOOL requestIsForTheSameURL = [self.af_imageRequestOperation.request isEqual:urlRequest];
+    
+    if (!requestIsForTheSameURL)
+    {
+        [self cancelImageRequestOperation];
+    }
+
+    UIImage *cachedImage = (!ignoreAFImageCache) ? [[[self class] sharedImageCache] cachedImageForRequest:urlRequest] : nil;
     if (cachedImage) {
         if (success) {
             success(nil, nil, cachedImage);
@@ -141,8 +155,16 @@
         }
 
         __weak __typeof(self)weakSelf = self;
-        self.af_imageRequestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:urlRequest];
-        self.af_imageRequestOperation.responseSerializer = self.imageResponseSerializer;
+        
+        /*
+         Don't send the same request again, just update completion handler
+         */
+        if (!requestIsForTheSameURL)
+        {
+            self.af_imageRequestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:urlRequest];
+            self.af_imageRequestOperation.responseSerializer = self.imageResponseSerializer;
+        }
+        
         [self.af_imageRequestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             if ([[urlRequest URL] isEqual:[strongSelf.af_imageRequestOperation.request URL]]) {
@@ -171,7 +193,10 @@
             }
         }];
 
-        [[[self class] af_sharedImageRequestOperationQueue] addOperation:self.af_imageRequestOperation];
+        if (!requestIsForTheSameURL)
+        {
+            [[[self class] af_sharedImageRequestOperationQueue] addOperation:self.af_imageRequestOperation];
+        }
     }
 }
 
@@ -206,7 +231,8 @@ static inline NSString * AFImageCacheKeyFromURLRequest(NSURLRequest *request) {
         forRequest:(NSURLRequest *)request
 {
     if (image && request) {
-        [self setObject:image forKey:AFImageCacheKeyFromURLRequest(request)];
+        NSUInteger imageSize  = CGImageGetHeight(image.CGImage) * CGImageGetBytesPerRow(image.CGImage);
+        [self setObject:image forKey:AFImageCacheKeyFromURLRequest(request) cost:imageSize];
     }
 }
 
