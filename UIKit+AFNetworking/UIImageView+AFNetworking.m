@@ -126,6 +126,15 @@
                        success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image))success
                        failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
 {
+    [self setImageWithURLRequest:urlRequest placeholderImage:placeholderImage ignoringAFImageCache:NO success:success failure:failure];
+}
+
+- (void)setImageWithURLRequest:(NSURLRequest *)urlRequest
+              placeholderImage:(UIImage *)placeholderImage
+          ignoringAFImageCache:(BOOL)ignoreAFImageCache
+                       success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image))success
+                       failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
+{
     BOOL requestIsForTheSameURL = [self.af_imageRequestOperation.request isEqual:urlRequest];
     
     if (!requestIsForTheSameURL)
@@ -133,7 +142,7 @@
         [self cancelImageRequestOperation];
     }
 
-    UIImage *cachedImage = [[[self class] sharedImageCache] cachedImageForRequest:urlRequest];
+    UIImage *cachedImage = (!ignoreAFImageCache) ? [[[self class] sharedImageCache] cachedImageForRequest:urlRequest] : nil;
     if (cachedImage) {
         if (success) {
             success(nil, nil, cachedImage);
