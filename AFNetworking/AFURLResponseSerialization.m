@@ -139,7 +139,7 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
                 mutableUserInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] = data;
             }
 
-            validationError = AFErrorWithUnderlyingError([NSError errorWithDomain:AFURLResponseSerializationErrorDomain code:NSURLErrorBadServerResponse userInfo:mutableUserInfo], validationError);
+           validationError = AFErrorWithUnderlyingError([NSError errorWithDomain:AFURLResponseSerializationErrorDomain code:NSURLErrorBadServerResponse userInfo:mutableUserInfo], validationError);
 
             responseIsValid = NO;
         }
@@ -476,7 +476,7 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
             return nil;
         }
     }
-
+    
     id responseObject;
     NSError *serializationError = nil;
 
@@ -486,6 +486,10 @@ static id AFJSONObjectByRemovingKeysWithNullValues(id JSONObject, NSJSONReadingO
 
     if (error) {
         *error = AFErrorWithUnderlyingError(serializationError, *error);
+    }
+    
+    if (!responseObject) {
+        NSLog(@"Wrong responce: %@, error: %@, URL: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], *error, response.URL);
     }
 
     return responseObject;

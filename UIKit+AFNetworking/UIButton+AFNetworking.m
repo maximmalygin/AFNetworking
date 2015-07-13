@@ -228,6 +228,7 @@ static const char * af_backgroundImageRequestOperationKeyForState(UIControlState
     [self setBackgroundImageForState:state withURLRequest:request placeholderImage:placeholderImage success:nil failure:nil];
 }
 
+//TODO: Fix memory issues
 - (void)setBackgroundImageForState:(UIControlState)state
                     withURLRequest:(NSURLRequest *)urlRequest
                   placeholderImage:(UIImage *)placeholderImage
