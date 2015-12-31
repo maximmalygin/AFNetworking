@@ -30,6 +30,7 @@
     #import "AFURLRequestSerialization.h"
     #import "AFURLResponseSerialization.h"
     #import "AFSecurityPolicy.h"
+    #import "AFImageDownloader.h"
 
 #if !TARGET_OS_WATCH
     #import "AFNetworkReachabilityManager.h"
